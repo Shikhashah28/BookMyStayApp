@@ -76,14 +76,7 @@ class RoomInventory {
     public void updateAvailability(String roomType, int count) {
         roomAvailability.put(roomType, count);
     }
-}
-
-
-/**
- * MAIN CLASS
- * Demonstrates centralized room inventory
- */
-public class BookMyStayApp {
+public class BookMyStayApp{
 
     public static void main(String[] args) {
 
