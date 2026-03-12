@@ -1,7 +1,6 @@
-public class BookMyStayApp{
 
-    public static void main(String[] args) {
-
+public class BookMyStayApp {
+    public static void main(String[]args){
         int singleAvailable = 5;
         int doubleAvailable = 3;
         int suiteAvailable = 2;
