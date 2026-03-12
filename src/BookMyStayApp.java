@@ -1,119 +1,79 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 
-/**
- * Room class stores room details
- */
-class Room {
-
+// Reservation class
+class Reservation {
+    private String guestName;
     private String roomType;
-    private int beds;
-    private int size;
-    private double pricePerNight;
 
-    public Room(String roomType, int beds, int size, double pricePerNight) {
+    // Constructor
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
         this.roomType = roomType;
-        this.beds = beds;
-        this.size = size;
-        this.pricePerNight = pricePerNight;
+    }
+
+    // Getter methods
+    public String getGuestName() {
+        return guestName;
     }
 
     public String getRoomType() {
         return roomType;
     }
+}
 
-    public int getBeds() {
-        return beds;
+// BookingRequestQueue class
+class BookingRequestQueue {
+    private Queue<Reservation> queue;
+
+    // Constructor
+    public BookingRequestQueue() {
+        queue = new LinkedList<>();
     }
 
-    public int getSize() {
-        return size;
+    // Add booking request
+    public void addRequest(Reservation reservation) {
+        queue.offer(reservation);
     }
 
-    public double getPricePerNight() {
-        return pricePerNight;
+    // Check if queue has requests
+    public boolean hasPendingRequests() {
+        return !queue.isEmpty();
+    }
+
+    // Process next request
+    public Reservation processRequest() {
+        return queue.poll();
     }
 }
 
-
-/**
- * RoomInventory class manages room availability
- */
-class RoomInventory {
-
-    // Map to store room availability
-    private Map<String, Integer> roomAvailability;
-
-    /**
-     * Constructor initializes inventory
-     */
-    public RoomInventory() {
-        initializeInventory();
-    }
-
-    /**
-     * Initializes default room availability
-     */
-    private void initializeInventory() {
-
-        roomAvailability = new HashMap<>();
-
-        roomAvailability.put("Single", 5);
-        roomAvailability.put("Double", 3);
-        roomAvailability.put("Suite", 2);
-    }
-
-    /**
-     * Returns availability map
-     */
-    public Map<String, Integer> getRoomAvailability() {
-        return roomAvailability;
-    }
-
-    /**
-     * Updates availability of a room type
-     */
-    public void updateAvailability(String roomType, int count) {
-        roomAvailability.put(roomType, count);
-    }
+// Main class
 public class BookMyStayApp{
 
     public static void main(String[] args) {
 
-        // Create room objects
-        Room singleRoom = new Room("Single", 1, 250, 1500.0);
-        Room doubleRoom = new Room("Double", 2, 400, 2500.0);
-        Room suiteRoom = new Room("Suite", 3, 750, 5000.0);
+        // Display application header
+        System.out.println("Booking Request Queue");
 
-        // Create inventory
-        RoomInventory inventory = new RoomInventory();
+        // Initialize booking queue
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        System.out.println("Hotel Room Inventory Status\n");
+        // Create booking requests
+        Reservation r1 = new Reservation("Abhi", "Single");
+        Reservation r2 = new Reservation("Subha", "Double");
+        Reservation r3 = new Reservation("Vanmathi", "Suite");
 
-        // Single Room
-        System.out.println("Single Room:");
-        System.out.println("Beds: " + singleRoom.getBeds());
-        System.out.println("Size: " + singleRoom.getSize() + " sqft");
-        System.out.println("Price per night: " + singleRoom.getPricePerNight());
-        System.out.println("Available Rooms: "
-                + inventory.getRoomAvailability().get("Single"));
-        System.out.println();
+        // Add requests to the queue
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-        // Double Room
-        System.out.println("Double Room:");
-        System.out.println("Beds: " + doubleRoom.getBeds());
-        System.out.println("Size: " + doubleRoom.getSize() + " sqft");
-        System.out.println("Price per night: " + doubleRoom.getPricePerNight());
-        System.out.println("Available Rooms: "
-                + inventory.getRoomAvailability().get("Double"));
-        System.out.println();
-
-        // Suite Room
-        System.out.println("Suite Room:");
-        System.out.println("Beds: " + suiteRoom.getBeds());
-        System.out.println("Size: " + suiteRoom.getSize() + " sqft");
-        System.out.println("Price per night: " + suiteRoom.getPricePerNight());
-        System.out.println("Available Rooms: "
-                + inventory.getRoomAvailability().get("Suite"));
+        // Display queued booking requests in FIFO order
+        while (bookingQueue.hasPendingRequests()) {
+            Reservation r = bookingQueue.processRequest();
+            System.out.println("Processing booking for Guest: "
+                    + r.getGuestName() + ", Room Type: "
+                    + r.getRoomType());
+        }
     }
 }
