@@ -1,106 +1,87 @@
 import java.util.*;
 
-public class BookMyStay {
-
-    /**
-     * Application entry point.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(String[] args) {
-
-        BookingAuditManager manager = new BookingAuditManager();
-
-        // Adding confirmed bookings
-        manager.confirmBooking(new Booking("B101", "Shikha", "Single Room"));
-        manager.confirmBooking(new Booking("B102", "Rahul", "Double Room"));
-        manager.confirmBooking(new Booking("B103", "Priya", "Suite"));
-
-        // Display audit trail
-        manager.displayAuditTrail();
+class InvalidBookingException extends Exception {
+    public InvalidBookingException(String message) {
+        super(message);
     }
 }
 
-/**
- * Represents a confirmed booking
- */
-class Booking {
-
-    private String bookingId;
-    private String customerName;
+class Reservation {
+    private String guestName;
     private String roomType;
 
-    /**
-     * Constructor
-     *
-     * @param bookingId booking ID
-     * @param customerName customer name
-     * @param roomType room type booked
-     */
-    public Booking(String bookingId, String customerName, String roomType) {
-        this.bookingId = bookingId;
-        this.customerName = customerName;
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
         this.roomType = roomType;
     }
 
-    public String getBookingId() {
-        return bookingId;
-    }
-
-    public String getCustomerName() {
-        return customerName;
+    public String getGuestName() {
+        return guestName;
     }
 
     public String getRoomType() {
         return roomType;
     }
+}
 
-    @Override
-    public String toString() {
-        return "Booking ID: " + bookingId +
-                ", Customer: " + customerName +
-                ", Room: " + roomType;
+class RoomInventory {
+    private Set<String> availableRoomTypes;
+
+    public RoomInventory() {
+        availableRoomTypes = new HashSet<>();
+        availableRoomTypes.add("Single");
+        availableRoomTypes.add("Double");
+        availableRoomTypes.add("Suite");
+    }
+
+    public boolean isRoomTypeAvailable(String roomType) {
+        return availableRoomTypes.contains(roomType); // case-sensitive
     }
 }
 
-/**
- * Manages booking confirmations
- * and audit trail
- */
-class BookingAuditManager {
+class ReservationValidator {
+    public void validate(String guestName, String roomType, RoomInventory inventory)
+            throws InvalidBookingException {
 
-    /**
-     * Stores confirmed bookings
-     * in insertion order
-     */
-    private List<Booking> auditTrail;
-
-    /**
-     * Constructor
-     */
-    public BookingAuditManager() {
-        auditTrail = new ArrayList<>();
-    }
-
-    /**
-     * Adds a confirmed booking
-     *
-     * @param booking booking object
-     */
-    public void confirmBooking(Booking booking) {
-        auditTrail.add(booking);
-    }
-
-    /**
-     * Displays all confirmed bookings
-     * in order
-     */
-    public void displayAuditTrail() {
-        System.out.println("Booking Audit Trail");
-        System.out.println("--------------------");
-
-        for (Booking booking : auditTrail) {
-            System.out.println(booking);
+        if (guestName == null || guestName.trim().isEmpty()) {
+            throw new InvalidBookingException("Guest name cannot be empty.");
         }
+
+        if (roomType == null || roomType.trim().isEmpty()) {
+            throw new InvalidBookingException("Room type cannot be empty.");
+        }
+
+        if (!inventory.isRoomTypeAvailable(roomType)) {
+            throw new InvalidBookingException("Invalid room type selected.");
+        }
+    }
+}
+
+public class BookMyStayApp{
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        RoomInventory inventory = new RoomInventory();
+        ReservationValidator validator = new ReservationValidator();
+
+        try {
+            System.out.println("Booking Validation");
+
+            System.out.print("Enter guest name: ");
+            String guestName = sc.nextLine();
+
+            System.out.print("Enter room type (Single/Double/Suite): ");
+            String roomType = sc.nextLine();
+
+            validator.validate(guestName, roomType, inventory);
+
+            Reservation r = new Reservation(guestName, roomType);
+            System.out.println("Booking successful for " + r.getGuestName());
+
+        } catch (InvalidBookingException e) {
+            System.out.println("Booking failed: " + e.getMessage());
+        }
+
+        sc.close();
     }
 }
