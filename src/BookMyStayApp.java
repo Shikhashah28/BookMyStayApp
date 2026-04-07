@@ -1,141 +1,106 @@
 import java.util.*;
 
-/**
- * =========================================================
- * MAIN CLASS - UseCase7AddOnServiceSelection
- * =========================================================
- *
- * Use Case 7: Add-On Service Selection
- *
- * Description:
- * This class demonstrates how optional
- * services can be attached to a confirmed
- * booking.
- *
- * Services are added after room allocation
- * and do not affect inventory.
- *
- * @version 7.0
- */
-public class BookMyStayApp {
+public class BookMyStay {
 
     /**
      * Application entry point.
      *
-     * @param args Command-line arguments
+     * @param args command-line arguments
      */
     public static void main(String[] args) {
 
-        AddOnServiceManager manager = new AddOnServiceManager();
+        BookingAuditManager manager = new BookingAuditManager();
 
-        String reservationId = "Single-1";
+        // Adding confirmed bookings
+        manager.confirmBooking(new Booking("B101", "Shikha", "Single Room"));
+        manager.confirmBooking(new Booking("B102", "Rahul", "Double Room"));
+        manager.confirmBooking(new Booking("B103", "Priya", "Suite"));
 
-        // Adding services
-        manager.addService(reservationId, new Service("Breakfast", 500.0));
-        manager.addService(reservationId, new Service("Airport Pickup", 1000.0));
-
-        // Calculating total
-        double totalCost = manager.calculateTotalServiceCost(reservationId);
-
-        System.out.println("Add-On Service Selection");
-        System.out.println("Reservation ID: " + reservationId);
-        System.out.println("Total Add-On Cost: " + totalCost);
+        // Display audit trail
+        manager.displayAuditTrail();
     }
 }
 
 /**
- * Represents an add-on service
+ * Represents a confirmed booking
  */
-class Service {
+class Booking {
+
+    private String bookingId;
+    private String customerName;
+    private String roomType;
 
     /**
-     * Name of the service.
-     */
-    private String serviceName;
-
-    /**
-     * Cost of the service.
-     */
-    private double cost;
-
-    /**
-     * Creates a new add-on service.
+     * Constructor
      *
-     * @param serviceName name of the service
-     * @param cost cost of the service
+     * @param bookingId booking ID
+     * @param customerName customer name
+     * @param roomType room type booked
      */
-    public Service(String serviceName, double cost) {
-        this.serviceName = serviceName;
-        this.cost = cost;
+    public Booking(String bookingId, String customerName, String roomType) {
+        this.bookingId = bookingId;
+        this.customerName = customerName;
+        this.roomType = roomType;
     }
 
-    /**
-     * @return service name
-     */
-    public String getServiceName() {
-        return serviceName;
+    public String getBookingId() {
+        return bookingId;
     }
 
-    /**
-     * @return service cost
-     */
-    public double getCost() {
-        return cost;
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public String getRoomType() {
+        return roomType;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking ID: " + bookingId +
+                ", Customer: " + customerName +
+                ", Room: " + roomType;
     }
 }
 
 /**
- * Manages add-on services for reservations
+ * Manages booking confirmations
+ * and audit trail
  */
-class AddOnServiceManager {
+class BookingAuditManager {
 
     /**
-     * Maps reservation ID to selected services.
-     *
-     * Key   -> Reservation ID
-     * Value -> List of selected services
+     * Stores confirmed bookings
+     * in insertion order
      */
-    private Map<String, List<Service>> servicesByReservation;
+    private List<Booking> auditTrail;
 
     /**
-     * Initializes the service manager.
+     * Constructor
      */
-    public AddOnServiceManager() {
-        servicesByReservation = new HashMap<>();
+    public BookingAuditManager() {
+        auditTrail = new ArrayList<>();
     }
 
     /**
-     * Attaches a service to a reservation.
+     * Adds a confirmed booking
      *
-     * @param reservationId confirmed reservation ID
-     * @param service add-on service
+     * @param booking booking object
      */
-    public void addService(String reservationId, Service service) {
-        servicesByReservation
-                .computeIfAbsent(reservationId, k -> new ArrayList<>())
-                .add(service);
+    public void confirmBooking(Booking booking) {
+        auditTrail.add(booking);
     }
 
     /**
-     * Calculates total add-on cost
-     * for a reservation.
-     *
-     * @param reservationId reservation ID
-     * @return total service cost
+     * Displays all confirmed bookings
+     * in order
      */
-    public double calculateTotalServiceCost(String reservationId) {
-        List<Service> services = servicesByReservation.get(reservationId);
+    public void displayAuditTrail() {
+        System.out.println("Booking Audit Trail");
+        System.out.println("--------------------");
 
-        if (services == null) {
-            return 0.0;
+        for (Booking booking : auditTrail) {
+            System.out.println(booking);
         }
-
-        double total = 0.0;
-
-        for (Service service : services) {
-            total += service.getCost();
-        }
-
-        return total;
     }
 }
